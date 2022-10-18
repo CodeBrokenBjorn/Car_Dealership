@@ -6,7 +6,7 @@ const app = express();
 app.use(express.json());
 app.use(logger('dev'));
 
-app.use("/carMainRoute", carRoute);
+app.use("/cars_tb", carRoute);
 
 app.use((req, res)=>
 res.status(404).send("Declare Error: Can't find the page or page is not existing"));
