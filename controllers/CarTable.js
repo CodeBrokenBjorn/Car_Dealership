@@ -3,13 +3,19 @@ const utilities = require('../utilities/utility');
 const db = require('../models');
 const { cars } = require('../models');
 const Cars = db.cars; 
+// if need to add in future any database <= 
 
 getItemALL = async(req, res) => { 
     //can be an error due to database not matching just be careful me :/
 
     const cars = await Cars.findAll();
+    order:['id'],
+    // include:[{
+    //     <= add this once user & seller will be create
+    // // }]
     res.status(200).json(cars);
 
+    
 }
 
 getItemByBrand = async (req, res) => {
@@ -24,9 +30,7 @@ getItemByBrand = async (req, res) => {
             res.status(200).json(cars);
         }
         catch(error){
-            utilities.FormatErrorResponse(res, 400, error.message); 
-
-        
+            utilities.formatErrorResponse(res, 400, error.message); 
 
         }
         
@@ -45,7 +49,7 @@ getItemByDesc = async(req, res) => {
 
     }
     catch(error){
-        utilities.FormatErrorResponse(res, 400, error.message);
+        utilities.formatErrorResponse(res, 400, error.message);
 
     }
 }
@@ -60,58 +64,72 @@ getItemByID = async(req, res) => {
 
     }
     catch(error){
-        utilities.FormatErrorResponse(res, 400, error.message); 
+        utilities.formatErrorResponse(res, 400, error.message); 
 
     }
-
 }
+
 postItem = async(req, res) => {
     const cars = {
-        Car_Desc: req.body.description,
-        Car_Brand: req.body.brand,
-        Car_ID: req.body.ID
-    }
+        Car_Desc: req.body.Car_Desc,
+        Car_Brand: req.body.Car_Brand,
+        Car_ID: req.body.Car_ID
+    };
     try{
-        if(cars.description== null || cars.brand==null || cars.cars_ID==null){
+        if(cars.Car_Desc== null || cars.Car_Brand==null || cars.Car_ID==null){
             throw new error("Missing specific requirements for post");
-            await cars.create(cars);
-            res.status(200).json(cars);
         }
-            
 
+        await Cars.create(cars);
+        res.status(200).json(cars);
+    }  
 
-    }
+    
     catch(error){
 
-        utilities.FormatErrorResponse(400, error.message)
+        utilities.formatErrorResponse(res, 400, error.message)
 
     }
 }
 
 deleteItem = async(req, res) => {
-   const ID = req.body.cars_ID;
+   let car_id = req.body.id;
    try{
-        const deleted = await cars.destroy({where: { id : id }});
+        const deleted = await cars.destroy({where: { Car_ID: car_id}});
         if(deleted==0 ){
-            throw new Error("Error the ID that was used to delete was not found");
+            throw new Error("Error the ID that was used to delete was not found or it's been already nuked");
 
         }
-        res.status(res , 404 , error.message);
+        res.status(200).send("Book Deleted");
 
 
    }
    catch(error){
 
-    utilities.FormatErrorResponse(res, 404, error.message); 
+    utilities.formatErrorResponse(res, 404, error.message); 
 
    }
 }
 updateItem = async(req, res ) => {
-    const ID = req.body.id;
     const cars = {
-        Car_Desc: req.body.description,
-        Car_Brand: req.body.brand,
-        Car_ID: req.body.ID
+        Car_Desc: req.body.Car_Desc,
+        Car_Brand: req.body.Car_Brand,
+        Car_ID: req.body.Car_ID
+    };
+    try{
+            if(cars.Car_Desc==null || cars.Car_Brand==null || cars.Car_ID==null){
+                throw new Error("Missing Essential Components witnin the field");
+    
+            }
+            await Cars.update(cars, {
+                where: {
+                    Car_ID: cars.Car_ID
+                }
+            })
+            res.status(200).json(cars); 
+    }
+    catch(error){
+        utilities.formatErrorResponse(res, 404, error.message);
     }
 }
 
